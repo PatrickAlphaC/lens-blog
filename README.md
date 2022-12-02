@@ -1,3 +1,13 @@
+Helpful: https://studio.apollographql.com/sandbox/explorer
+
+
+1. Sign in
+2. If they are following -> show followings posts
+3. If they are not -> say to sign up for lens, and here are Patrick's posts
+
+
+Try out queries here: https://api.lens.dev/
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
