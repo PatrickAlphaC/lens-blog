@@ -19,6 +19,33 @@ import { useNotification } from "@web3uikit/core";
 import { encode } from "js-base64";
 
 const BASE_64_PREFIX = "data:application/json;base64,";
+const PINATA_PIN_ENDPOINT = "https://api.pinata.cloud/pinning/pinJSONToIPFS";
+
+async function pinMetadataToPinata(
+  metadata,
+  contentName,
+  pinataApiKey,
+  pinataApiSecret
+) {
+  console.log("pinning metadata to pinata...");
+  const data = JSON.stringify({
+    pinataMetadata: { name: contentName },
+    pinataContent: metadata,
+  });
+  const config = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      pinata_api_key: pinataApiKey,
+      pinata_secret_api_key: pinataApiSecret,
+    },
+    body: data,
+  };
+  const response = await fetch(PINATA_PIN_ENDPOINT, config);
+  const ipfsHash = (await response.json()).IpfsHash;
+  console.log(`Stored content metadata with ${ipfsHash}`);
+  return ipfsHash;
+}
 
 function PostForm({ preview }) {
   const { profileId, token } = useLensContext();
@@ -31,36 +58,55 @@ function PostForm({ preview }) {
 
   const { runContractFunction } = useWeb3Contract();
 
-  const handlePostSuccess = () => {
+  async function handlePostSuccess(tx) {
+    const response = await tx.wait();
     dispatch({
       type: "success",
-      message: "Transaction Created...",
+      message: `Transaction Complete ${response}`,
       position: "topR",
     });
-  };
+  }
 
   const { isValid, isDirty } = formState;
 
-  const publishPost = async ({ content, contentName, imageUri, imageType }) => {
+  const publishPost = async ({
+    content,
+    contentName,
+    imageUri,
+    imageType,
+    pinataApiKey,
+    pinataApiSecret,
+  }) => {
+    let fullContentURI;
     const contentMetadata = createContentMetadata(
       content,
       contentName,
       imageUri,
       imageType
     );
-    const base64EncodedContent = encode(JSON.stringify(contentMetadata));
-    const fullUri = BASE_64_PREFIX + base64EncodedContent;
+    if (pinataApiSecret && pinataApiKey) {
+      const metadataIpfsHash = await pinMetadataToPinata(
+        contentMetadata,
+        contentName,
+        pinataApiKey,
+        pinataApiSecret
+      );
+      fullContentURI = `ipfs://${metadataIpfsHash}`;
+      console.log(fullContentURI);
+    } else {
+      const base64EncodedContent = encode(JSON.stringify(contentMetadata));
+      const fullContentURI = BASE_64_PREFIX + base64EncodedContent;
+    }
     const transactionParameters = [
       profileId,
-      fullUri,
+      fullContentURI,
       networkConfig[chainIdString]["freeCollectModule"],
       TRUE_BYTES,
       networkConfig[chainIdString]["followerOnlyReferenceModule"],
       TRUE_BYTES,
     ];
-
     console.log(transactionParameters);
-    console.log(fullUri);
+    console.log(fullContentURI);
 
     const transactionOptions = {
       abi: lensAbi,
@@ -72,7 +118,7 @@ function PostForm({ preview }) {
     };
 
     await runContractFunction({
-      onSuccess: () => handlePostSuccess(),
+      onSuccess: (tx) => handlePostSuccess(tx),
       onError: (error) => console.log(error),
       params: transactionOptions,
     });
@@ -97,34 +143,55 @@ function PostForm({ preview }) {
             required: true,
           })}
         />
-        <input
-          className="mb-2 border border-gray-300 "
-          placeholder="Image URI"
-          name="imageURI"
-          {...register("imageURI", {
-            maxLength: 100,
-            minLength: 1,
-            required: true,
-          })}
-        />
-        <input
-          className="mb-2 border border-gray-300 "
-          placeholder="image/svg+xml,image/gif,image/jpeg,image/png,image/tiff..."
-          name="imageType"
-          {...register("imageType", {
-            maxLength: 100,
-            minLength: 1,
-            required: true,
-          })}
-        />
+
         <textarea
-          className="h-96"
+          className="h-96 mb-2 "
           placeholder="Write your article here!"
           name="content"
           {...register("content", {
             maxLength: 25000,
             minLength: 10,
             required: true,
+          })}
+        />
+        <input
+          className="mb-2 border border-gray-300 "
+          placeholder="(optional) Image URI"
+          name="imageURI"
+          {...register("imageURI", {
+            maxLength: 100,
+            minLength: 1,
+            required: false,
+          })}
+        />
+        <input
+          className="mb-2 border border-gray-300 "
+          placeholder="(optional) image/svg+xml,image/gif,image/jpeg,image/png,image/tiff..."
+          name="imageType"
+          {...register("imageType", {
+            maxLength: 100,
+            minLength: 1,
+            required: false,
+          })}
+        />
+        <input
+          className="mb-2 border border-gray-300 "
+          placeholder="(optional) Pinata API Key"
+          name="pinataApiKey"
+          {...register("pinataApiKey", {
+            maxLength: 100,
+            minLength: 1,
+            required: false,
+          })}
+        />
+        <input
+          className="mb-2 border border-gray-300 "
+          placeholder="(optional) Pinata API Secret"
+          name="pinataApiSecret"
+          {...register("pinataApiSecret", {
+            maxLength: 100,
+            minLength: 1,
+            required: false,
           })}
         />
         {errors ? (

@@ -1,46 +1,67 @@
-Work in Progress
+<br/>
+<p align="center">
+<a href="https://www.lens.xyz/" target="_blank">
+<img src="./public/logo-full-black.svg" width="400" alt="LensBlog">
+</a>
+</p>
+<br/>
 
-Helpful: https://studio.apollographql.com/sandbox/explorer
+# LensBlog
 
+## About
 
-1. Sign in
-2. If they are following -> show followings posts
-3. If they are not -> say to sign up for lens, and here are Patrick's posts
+A demo decentralized blogging platform built off [LensProtocol](https://www.lens.xyz/). It's feature limited, but it can:
 
+- View Articles of people you follow
+- Post Articles
 
-Try out queries here: https://api.lens.dev/
+_Posting via base64 encoded contentURIs currently isn't indexed by the lens API. You can still do it since the data will be on chain, but for the lens API to index, we need to upload our data to something like IPFS first, which is why we have optional [Pinata](https://app.pinata.cloud/) support._
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Getting Started 
 
-## Getting Started
+## Requirements
 
-First, run the development server:
+- [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+  - You'll know you did it right if you can run `git --version` and you see a response like `git version x.x.x`
+- [Nodejs](https://nodejs.org/en/)
+  - You'll know you've installed nodejs right if you can run:
+    - `node --version`and get an output like: `vx.x.x`
+    - You'll also need `npm`
 
+## Quickstart
+
+1. Clone and install dependencies
+   
 ```bash
-npm run dev
-# or
-yarn dev
+git clone https://github.com/PatrickAlphaC/lens-blog/
+cd lens-blog
+npm i
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Start the dev server
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+```
+npm run dev
+```
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+If you go to `localhost:3000` you'll see something that looks like:
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+![public/home-demo.png](public/home-demo.png).
 
-## Learn More
+If you connect your wallet, and sign into Lens, it'll populate with Articles from those you follow. Then, you can go and write an article. 
 
-To learn more about Next.js, take a look at the following resources:
+# Writing Queries
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Lens Protocol is a decentralized smart contract, however, reading from smart contracts can sometimes be hard. So the lens team currently has a centralized API you can query to build apps easier. The easiest way I've found to write queries is to take the `api.lens.dev` URL, and stick it into:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+https://studio.apollographql.com/sandbox/explorer
 
-## Deploy on Vercel
+It will auto populate with the schema and write your `gql` queries as you pick the parameters you want. 
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+You can also try queries here: https://api.lens.dev/
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+# Contributing
+
+Contributions are always welcome! Open a PR or an issue!
+
+# Thank You!
