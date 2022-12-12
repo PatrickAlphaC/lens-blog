@@ -37,9 +37,11 @@ export default function Home(props) {
   };
 
   useEffect(() => {
-    getPublicationsList().then((publications) => {
-      setPubs(publications);
-    });
+    if (account) {
+      getPublicationsList().then((publications) => {
+        setPubs(publications);
+      });
+    }
   }, [account]);
 
   return (
